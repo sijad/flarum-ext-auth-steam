@@ -112,7 +112,7 @@ class SteamAuthController implements ControllerInterface
                     return new Response("Can't Get User Info", 500);
                 }
 
-                if ($info = json_decode((string) $res->getBody())) {
+                if ($info = json_decode((string) $res->getBody(), true)) {
                     $identification = ['steam_id' => $steam_id];
                     $suggestions = [
                         'username' => $info['response']['players'][0]['personaname'],
