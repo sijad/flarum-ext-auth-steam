@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/sijad/flarum-ext-auth-steam/issues",
-        "source": "https://github.com/sijad/sijad/flarum-ext-auth-steam"
+        "source": "https://github.com/sijad/flarum-ext-auth-steam"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.3"
