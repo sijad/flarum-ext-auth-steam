@@ -1,0 +1,21 @@
+sijad-auth-steam:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+
+    # These translations are used in the Steam Settings modal dialog.
+    steam_settings:
+      api_key_label: Clé API
+      api_secret_label: Secret API
+      title: Paramètres d'API Steam
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+
+    # These translations are used in the Log In modal dialog.
+    log_in:
+      with_steam_button: Connexion avec Steam
