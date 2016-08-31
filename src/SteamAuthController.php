@@ -14,7 +14,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Uri;
-use Guzzle\Http\QueryString;
 use GuzzleHttp\Client;
 
 class SteamAuthController implements ControllerInterface
@@ -64,7 +63,7 @@ class SteamAuthController implements ControllerInterface
         if (!$oidSig) {
             return new RedirectResponse((string) (
                 new Uri(SteamAuthController::LOGIN_URL))
-                    ->withQuery((string) new QueryString(
+                    ->withQuery(http_build_query(
                         [
                             'openid.ns' => 'http://specs.openid.net/auth/2.0',
                             'openid.mode' => 'checkid_setup',
