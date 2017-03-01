@@ -1,17 +1,18 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import LogInButtons from 'flarum/components/LogInButtons';
-import LogInButton from 'flarum/components/LogInButton';
+import SteamLogInButton from 'sijad/auth/steam/components/SteamLogInButton';
 
 app.initializers.add('sijad-auth-steam', () => {
+  console.log(SteamLogInButton);
   extend(LogInButtons.prototype, 'items', function(items) {
     items.add('steam',
-      <LogInButton
+      <SteamLogInButton
         className="Button LogInButton--steam"
         icon="steam"
         path="/auth/steam">
         {app.translator.trans('sijad-auth-steam.forum.log_in.with_steam_button')}
-      </LogInButton>
+      </SteamLogInButton>
     );
   });
 });
