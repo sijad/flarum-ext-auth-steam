@@ -117,7 +117,7 @@ class SteamAuthController implements ControllerInterface
                     $info = json_decode((string) $res->getBody(), true);
                     if ($info) {
                         $suggestions = [
-                            'username' => array_get($info, 'response.players.0.personaname'),
+                            'username' => basename(array_get($info, 'response.players.0.profileurl')),
                             'avatarUrl' => array_get($info, 'response.players.0.avatarfull'),
                         ];
 
