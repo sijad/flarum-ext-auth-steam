@@ -60,21 +60,22 @@ class SteamAuthController implements ControllerInterface
 
         $queryParams = $request->getQueryParams();
         $oidSig = array_get($queryParams, 'openid_sig');
-        if (!$oidSig) {
-            return new RedirectResponse((string) (
-                new Uri(SteamAuthController::LOGIN_URL))
-                    ->withQuery(http_build_query(
-                        [
-                            'openid.ns' => 'http://specs.openid.net/auth/2.0',
-                            'openid.mode' => 'checkid_setup',
-                            'openid.identity' => 'http://specs.openid.net/auth/2.0/identifier_select',
-                            'openid.claimed_id' => 'http://specs.openid.net/auth/2.0/identifier_select',
-                            'openid.return_to' => (string) $redirectUri,
-                            'openid.realm' => (string) $redirectUri->withPath(''), // TODO: fix in subfolder issue, not sure if steam needs host name or flarum baseurl
-                        ]
-                    )
+        if (! $oidSig) {
+            return new RedirectResponse(
+                (string) (new Uri(SteamAuthController::LOGIN_URL))
+                ->withQuery(http_build_query(
+                    [
+                        'openid.ns' => 'http://specs.openid.net/auth/2.0',
+                        'openid.mode' => 'checkid_setup',
+                        'openid.identity' => 'http://specs.openid.net/auth/2.0/identifier_select',
+                        'openid.claimed_id' => 'http://specs.openid.net/auth/2.0/identifier_select',
+                        'openid.return_to' => (string) $redirectUri,
+                        // TODO: fix in subfolder issue, not sure if steam needs host name or flarum baseurl
+                        'openid.realm' => (string) $redirectUri->withPath(''),
+                    ]
                 )
-            );
+            )
+        );
         }
 
         $query = [
@@ -82,7 +83,8 @@ class SteamAuthController implements ControllerInterface
             'openid.sig' => array_get($queryParams, 'openid_sig'),
         ];
 
-        foreach (explode(',', array_get($queryParams, 'openid_signed')) as $param) {
+        $params = explode(',', array_get($queryParams, 'openid_signed'));
+        foreach ($params as $param) {
             $query['openid.'.$param] = array_get($queryParams, 'openid_'.$param);
         }
 
@@ -98,28 +100,34 @@ class SteamAuthController implements ControllerInterface
             return new Response("Can't Verify OpenID", 500);
         }
 
-        if ($res->getStatusCode() === 200 and preg_match("/^is_valid:true+$/im", (string) $res->getBody()) === 1) {
-            if ($steam_id = array_get($queryParams, 'openid_claimed_id') and $steam_id = basename($steam_id) and is_numeric($steam_id)) {
+        if ($res->getStatusCode() === 200 && preg_match("/^is_valid:true+$/im", (string) $res->getBody()) === 1) {
+            $steamID = basename(array_get($queryParams, 'openid_claimed_id', ''));
+            if ($steamID && is_numeric($steamID)) {
                 try {
-                    $res = $client->request('GET', SteamAuthController::API_URL, [
-                        'query' => [
-                            'key' => $this->settings->get('sijad-auth-steam.api_key'),
-                            'steamids' => $steam_id
+                    $res = $client->request(
+                        'GET',
+                        SteamAuthController::API_URL,
+                        [
+                            'query' => [
+                                'key' => $this->settings->get('sijad-auth-steam.api_key'),
+                                'steamids' => $steamID
+                            ]
                         ]
-                    ]);
-                } catch (Exception $e) {
-                    return new Response("Can't Get User Info", 500);
-                }
+                    );
+                    $info = json_decode((string) $res->getBody(), true);
+                    if ($info) {
+                        $suggestions = [
+                            'username' => array_get($info, 'response.players.0.personaname'),
+                            'avatarUrl' => array_get($info, 'response.players.0.avatarfull'),
+                        ];
 
-                if ($info = json_decode((string) $res->getBody(), true)) {
-                    $identification = ['steam_id' => $steam_id];
-                    $suggestions = [
-                        'username' => $info['response']['players'][0]['personaname'],
-                        'avatarUrl' => $info['response']['players'][0]['avatarfull']
-                    ];
-
-                    return $this->authResponse->make($request, $identification, $suggestions);
-                }
+                        return $this->authResponse->make(
+                            $request,
+                            ['steam_id' => $steamID],
+                            $suggestions
+                        );
+                    }
+                } catch (Exception $e) { }
             }
         }
 
