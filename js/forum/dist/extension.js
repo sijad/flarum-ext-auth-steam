@@ -60,7 +60,6 @@ System.register('sijad/auth/steam/main', ['flarum/extend', 'flarum/app', 'flarum
     execute: function () {
 
       app.initializers.add('sijad-auth-steam', function () {
-        console.log(SteamLogInButton);
         extend(LogInButtons.prototype, 'items', function (items) {
           items.add('steam', m(
             SteamLogInButton,

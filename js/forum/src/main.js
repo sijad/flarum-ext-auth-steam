@@ -4,7 +4,6 @@ import LogInButtons from 'flarum/components/LogInButtons';
 import SteamLogInButton from 'sijad/auth/steam/components/SteamLogInButton';
 
 app.initializers.add('sijad-auth-steam', () => {
-  console.log(SteamLogInButton);
   extend(LogInButtons.prototype, 'items', function(items) {
     items.add('steam',
       <SteamLogInButton
