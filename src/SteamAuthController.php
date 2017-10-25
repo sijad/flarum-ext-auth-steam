@@ -54,7 +54,7 @@ class SteamAuthController implements ControllerInterface
      */
     public function handle(Request $request)
     {
-        $redirectUri = $request->getOriginalRequest()->getUri()->withQuery('');
+        $redirectUri = $request->getAttribute('originalUri', $request->getUri())->withQuery('');
 
         $session = $request->getAttribute('session');
 
